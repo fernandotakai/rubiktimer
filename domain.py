@@ -7,4 +7,4 @@ class Time(db.Model):
 	
 	def __str__(self):
 		t = float(self.time)
-		return "%s: %.2fs" % (self.author, (t / 1000))
+		return "%.2fs @ %s" % ((t / 1000), self.date)
