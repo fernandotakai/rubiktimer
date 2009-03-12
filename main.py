@@ -30,7 +30,7 @@ class MainHandler(webapp.RequestHandler):
 	user = users.get_current_user()
 	
 	if user:
-		times = db.GqlQuery("select * from Time order by date desc limit 10")
+		times = Time.gql("where author = :1 order by date desc limit 10", user)
 		self.response.out.write(template.render("timer.html", { 'times': times, 'username' : user.nickname(), 
 															    'logout' : users.create_logout_url("/") }))
 	else:
@@ -49,8 +49,48 @@ class CreateTime(webapp.RequestHandler):
 	
 	self.response.out.write("ok")
 	
+class GetTimes(webapp.RequestHandler):
+  def get(self):
+	user = users.get_current_user() 
+
+	if not user:
+		self.response.set_status(401)
+		self.response.out.write("Not authorized")
+	
+	times = Time.gql("where author = :1 order by date desc limit 1", user)
+	
+	xml = "<times>"
+	
+	data_template = "<data time='%.2f' date='%s' key='%s' />"
+	
+	for time in times:
+		xml += data_template % (float(time.time) / 1000, time.date, time.key())
+		
+	xml += "</times>"
+	
+	self.response.headers['Content-Type'] = 'application/xml'
+	self.response.set_status(200)
+	self.response.out.write(xml)
+	
+class DeleteTime(webapp.RequestHandler):
+	def post(self):
+		try:
+			user = users.get_current_user()
+
+			if not user:
+				self.response.set_status(401)
+				self.response.out.write("Not authorized")
+
+			time = Time.get(self.request.get("key"))
+
+			time.delete()
+
+			self.response.out.write("Ok.")			
+		except Exception, e:
+			self.response.out.write(e.message)
+	
 def main():
-  application = webapp.WSGIApplication([('/', MainHandler), ('/post', CreateTime)],
+  application = webapp.WSGIApplication([('/', MainHandler), ('/post', CreateTime), ('/times', GetTimes), ('/delete', DeleteTime)],
                                        debug=True)
   wsgiref.handlers.CGIHandler().run(application)
 
