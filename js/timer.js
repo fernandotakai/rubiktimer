@@ -4,19 +4,28 @@ var oldTime = -1;
 var timerStarted = false;
 var stopped = true;
 
+var divTimer = $("#timer", document)
+
+var initialDate;
+
+function incrementTimer(){
+	time += 125;
+	divTimer.html((time / 1000).toFixed(2));
+	timerId = self.setTimeout("incrementTimer()", 125);
+}
+
 function startTimer(){
-	time += 10;
-	var divTimer = document.getElementById("timer")
-	divTimer.innerHTML = time;
-	timerId = self.setTimeout("startTimer()", 10);
+	initialDate = new Date();
+	timerId = self.setTimeout("incrementTimer()", 125);
 }
 
 function stopTimer(){
 	self.clearTimeout(timerId);
-	var divTimer = document.getElementById("timer")
-	divTimer.innerHTML = "Your time was: " + (time / 1000).toFixed(2) + " seconds"
-	oldTime = time;
+	oldTime = new Date() - initialDate
+	divTimer.html("Your time was: " + ( oldTime / 1000).toFixed(2) + " seconds")
 	time = 0;
+	submitTime();
+	getTimes();
 }
 
 function start(event){
@@ -46,9 +55,7 @@ function submitTime(){
 			type: "POST",
 			data: { 'time' : oldTime },
 			success: function(){
-				var divTimer = document.getElementById("timer");
-				divTimer.innerHTML = "Done! - You can press space again to start another timer!"
-				oldTime = -1;
+				divTimer.append("<br /> Time Submitted!")
 			},
 			error: function(error){
 				var divTimer = document.getElementById("timer")
@@ -58,7 +65,44 @@ function submitTime(){
 	}
 }
 
+function getTimes(){
+	$.ajax({
+	  url: "/times",
+	  dataType: "xml",
+	
+  	  success: function(data) {
+		var divTimes = $("#times", document).find("ul")
+
+	    $(data).find("data").each(function(index) {
+		    var d = $(this)
+			var key = d.attr("key")
+	    	divTimes.prepend("<li id='" + d.attr("key") + "'> From You: " + d.attr("time") + "s @ " + d.attr("date") + " <a id='delete' href='' onclick=\"deleteTime('" + key + "')\">[x]</a></li>")
+	    });
+	    
+      },
+	
+      error: function(err) {
+	     alert("Erro!");
+	  },
+	});
+	
+}
+
 function reset(){
 	oldTime = -1;
 	document.getElementById("timer").innerHTML = "";
+}
+
+
+function deleteTime(key){
+	$.ajax({
+	  url: "/delete",
+	  type: "POST",
+	  data: { key: key},
+      success: function(msg) {
+	  	$("#" + key).delete()
+		alert("Aasd");
+	  }, 
+	});
+	
 }
