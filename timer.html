@@ -2,26 +2,26 @@
 	<head>
 		<meta http-equiv="Content-type" content="text/html; charset=utf-8">
 		<title>Timer!</title>
-		<script src="/js/timer.js" type="text/javascript" charset="utf-8"></script>
-		<script src="/js/jquery.js" type="text/javascript" charset="utf-8"></script>
 	</head>
 	<body onkeyup="start(event);" onkeydown="stop(event);">
 		<p>Hi, {{username}}! <a href="{{ logout }}">Logout</a></p> 
 		<div id="timer"></div>
 		<p>Press (Hold doesn't start, release does) Space bar to start timer. Press again to stop</p>
 		
-		<input type="button" name="submit" value="Submit Time" id="submit" onclick="confirm('Are you sure?') && submitTime();"/>
 		<input type="button" name="reset" value="Reset" id="reset" onclick="reset();"/>
 		
-		<p>Latest Times: </p>
+		<p>Your Latest Times: </p>
 		
 		<div id="times">
 			<ul>
 			{% for time in times %}
-			    <li>From: {{ time }}</li>
+			    <li id="{{ time.key }}"> From You: {{ time }} <a id="delete" href="" onclick="deleteTime('{{ time.key }}')">[x]</a></li>
 			{% endfor %}
 			</ul>
 		</div>
 		
 	</body>
+	<script src="/js/jquery.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/js/date.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/js/timer.js" type="text/javascript" charset="utf-8"></script>
 </html>
