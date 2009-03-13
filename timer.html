@@ -4,6 +4,9 @@
 		<title>Timer!</title>
 	</head>
 	<body onkeyup="start(event);" onkeydown="stop(event);">
+		<div id="status" style="display: none; float: right;">
+			<img src="/imgs/status.gif" />
+		</div>
 		<p>Hi, {{username}}! <a href="{{ logout }}">Logout</a></p> 
 		<div id="timer"></div>
 		<p>Press (Hold doesn't start, release does) Space bar to start timer. Press again to stop</p>
@@ -15,7 +18,7 @@
 		<div id="times">
 			<ul>
 			{% for time in times %}
-			    <li id="{{ time.key }}"> From You: {{ time }} <a id="delete" href="#{{ time.key}}" onclick="deleteTime('{{ time.key }}')">[x]</a></li>
+			    <li id="{{ time.key }}"> From You: {{ time }} <a id="delete" href="javascript:deleteTime('{{time.key}}')">[x]</a></li>
 			{% endfor %}
 			</ul>
 		</div>

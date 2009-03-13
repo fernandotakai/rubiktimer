@@ -8,7 +8,7 @@ var divTimer = $("#timer", document)
 
 var initialDate;
 
-var deleteLink = "<li id='KEY'> From You: TIMEs @ DATE <a id='delete' href='#KEY' onclick=\"deleteTime('KEY')\">[x]</a></li>"
+var deleteLink = "<li id='KEY'> From You: TIMEs @ DATE <a id='delete' href=\"javascript:deleteTime('KEY')\" \">[x]</a></li>"
 
 function incrementTimer(){
 	time += 125;
@@ -87,8 +87,7 @@ function getTimes(){
       error: function(err) {
 	     alert("Erro!");
 	  },
-	});
-	
+	});	
 }
 
 function reset(){
@@ -110,3 +109,13 @@ function deleteTime(key){
 	})
 	
 }
+
+$(function() {
+	var status = $("#status")
+    $(document).ajaxSend(function() {
+		status.show()
+    });
+    $(document).ajaxStop(function() {
+		status.hide()
+    });
+});
