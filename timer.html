@@ -15,7 +15,7 @@
 		<div id="times">
 			<ul>
 			{% for time in times %}
-			    <li id="{{ time.key }}"> From You: {{ time }} <a id="delete" href="" onclick="deleteTime('{{ time.key }}')">[x]</a></li>
+			    <li id="{{ time.key }}"> From You: {{ time }} <a id="delete" href="#{{ time.key}}" onclick="deleteTime('{{ time.key }}')">[x]</a></li>
 			{% endfor %}
 			</ul>
 		</div>

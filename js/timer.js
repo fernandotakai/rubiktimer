@@ -1,12 +1,14 @@
 var timerId = null;
 var time = 0;
-var oldTime = -1;
+var timeToSubmit = -1;
 var timerStarted = false;
 var stopped = true;
 
 var divTimer = $("#timer", document)
 
 var initialDate;
+
+var deleteLink = "<li id='KEY'> From You: TIMEs @ DATE <a id='delete' href='#KEY' onclick=\"deleteTime('KEY')\">[x]</a></li>"
 
 function incrementTimer(){
 	time += 125;
@@ -21,8 +23,8 @@ function startTimer(){
 
 function stopTimer(){
 	self.clearTimeout(timerId);
-	oldTime = new Date() - initialDate
-	divTimer.html("Your time was: " + ( oldTime / 1000).toFixed(2) + " seconds")
+	timeToSubmit = new Date() - initialDate
+	divTimer.html("Your time was: " + ( timeToSubmit / 1000).toFixed(2) + " seconds")
 	time = 0;
 	submitTime();
 	getTimes();
@@ -31,7 +33,7 @@ function stopTimer(){
 function start(event){
 	if(event.keyCode == 32){
 		event.preventDefault();
-		if(stopped && oldTime == -1){
+		if(stopped && timeToSubmit == -1){
 			startTimer();
 			stopped = false;
 		}
@@ -49,11 +51,11 @@ function stop(event){
 }
 
 function submitTime(){
-	if(oldTime != -1){
+	if(timeToSubmit != -1){
 		$.ajax({
 			url : "/post",
 			type: "POST",
-			data: { 'time' : oldTime },
+			data: { 'time' : timeToSubmit },
 			success: function(){
 				divTimer.append("<br /> Time Submitted!")
 			},
@@ -76,7 +78,8 @@ function getTimes(){
 	    $(data).find("data").each(function(index) {
 		    var d = $(this)
 			var key = d.attr("key")
-	    	divTimes.prepend("<li id='" + d.attr("key") + "'> From You: " + d.attr("time") + "s @ " + d.attr("date") + " <a id='delete' href='' onclick=\"deleteTime('" + key + "')\">[x]</a></li>")
+
+	    	divTimes.prepend(deleteLink.replace("KEY", key, "g").replace("TIME", d.attr("time"), "g").replace("DATE", d.attr("date"), "g"))
 	    });
 	    
       },
@@ -89,20 +92,21 @@ function getTimes(){
 }
 
 function reset(){
-	oldTime = -1;
-	document.getElementById("timer").innerHTML = "";
+	timeToSubmit = -1;
+	$("#timer").html("");
 }
 
 
 function deleteTime(key){
 	$.ajax({
-	  url: "/delete",
-	  type: "POST",
-	  data: { key: key},
-      success: function(msg) {
-	  	$("#" + key).delete()
-		alert("Aasd");
-	  }, 
-	});
+		url : "/delete",
+		type: "POST",
+		data: { 'key' : key },
+		success: function(){
+			$("#" + key).fadeOut("fast")
+		},
+		error: function(error){
+		}
+	})
 	
 }
