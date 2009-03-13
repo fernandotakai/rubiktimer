@@ -108,7 +108,19 @@ function deleteTime(key){
 		error: function(error){
 		}
 	})
-	
+}
+
+
+function clearTimes(){
+	$.ajax({
+		url : "/clear",
+		type: "POST",
+		success: function(){
+			$("#times").find("ul").fadeOut('fast');
+		},
+		error: function(error){
+		}
+	})
 }
 
 $(function() {
