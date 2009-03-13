@@ -24,6 +24,8 @@ from google.appengine.api import users
 from google.appengine.ext.webapp import template
 from domain import Time
 
+import logging
+
 class MainHandler(webapp.RequestHandler):
 
   def get(self):
@@ -88,9 +90,23 @@ class DeleteTime(webapp.RequestHandler):
 			self.response.out.write("Ok.")			
 		except Exception, e:
 			self.response.out.write(e.message)
+			
+class ClearTimes(webapp.RequestHandler):
+	def post(self):
+		user = users.get_current_user()
+
+		if not user:
+			self.response.set_status(401)
+			self.response.out.write("Not authorized")
+		
+		times = Time.gql("where author = :1", user)
+		
+		db.delete(times)
+		
+		self.response.out.write("Ok.")
 	
 def main():
-  application = webapp.WSGIApplication([('/', MainHandler), ('/post', CreateTime), ('/times', GetTimes), ('/delete', DeleteTime)],
+  application = webapp.WSGIApplication([('/', MainHandler), ('/post', CreateTime), ('/times', GetTimes), ('/delete', DeleteTime), ('/clear', ClearTimes)],
                                        debug=True)
   wsgiref.handlers.CGIHandler().run(application)
 
